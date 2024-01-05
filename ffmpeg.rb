@@ -1,29 +1,13 @@
 class Ffmpeg < Formula
   desc "Play, record, convert, and stream audio and video"
   homepage "https://ffmpeg.org/"
+  url "https://ffmpeg.org/releases/ffmpeg-6.1.1.tar.xz"
+  sha256 "8684f4b00f94b85461884c3719382f1261f0d9eb3d59640a1f4ac0873616f968"
   # None of these parts are used by default, you have to explicitly pass `--enable-gpl`
   # to configure to activate them. In this case, FFmpeg's license changes to GPL v2+.
   license "GPL-2.0-or-later"
   revision 2
   head "https://github.com/FFmpeg/FFmpeg.git", branch: "master"
-
-  stable do
-    url "https://ffmpeg.org/releases/ffmpeg-6.0.tar.xz"
-    sha256 "57be87c22d9b49c112b6d24bc67d42508660e6b718b3db89c44e47e289137082"
-
-    # Fix for binutils, remove with `stable` block on next release
-    # https://www.linuxquestions.org/questions/slackware-14/regression-on-current-with-ffmpeg-4175727691/
-    patch do
-      url "https://github.com/FFmpeg/FFmpeg/commit/effadce6c756247ea8bae32dc13bb3e6f464f0eb.patch?full_index=1"
-      sha256 "9800c708313da78d537b61cfb750762bb8ad006ca9335b1724dbbca5669f5b24"
-    end
-
-    # flv hevc/opus support in China
-    patch do
-      url "https://github.com/wasphin/homebrew-formula/blob/main/ffmpeg-lavf-flv-hevc-support.rb"
-      sha256 "2bb2a3cfc7a92915cfd70afb963b62cc1e498f944f3dd99d56e324585ea21c47"
-    end
-  end
 
   livecheck do
     url "https://ffmpeg.org/download.html"
@@ -31,13 +15,13 @@ class Ffmpeg < Formula
   end
 
   bottle do
-    sha256 arm64_sonoma:   "96adc7d2fdfcfb412631f85017a914dc97547d02e06db1ed84c0a77b33b1361a"
-    sha256 arm64_ventura:  "1369ed7bbc300c5e310e51f6281e188fb212dd4dbd26f2265fe16f9bfe514aca"
-    sha256 arm64_monterey: "b323651df6dc1f0fe14ce1248de639b93e9bbd5328912897c5933b0014cad6e9"
-    sha256 sonoma:         "e17fbb073d25683985e3f382a85419d220d54c931b9ae3e5192b91daa88571ac"
-    sha256 ventura:        "2c8d36f30ae9bc1c8ce1d33cb44ac3f2f6a5ae34ac6b8ab48085645bab020aaf"
-    sha256 monterey:       "cf80f268042144cd9d126d1860d34e892d5771ace019d7ec2d3fb6e4f09042a1"
-    sha256 x86_64_linux:   "13d6196b91e6811625b48fb8b658a1688696e667eab46e8511f4afd2a2d9c982"
+    sha256 arm64_sonoma:   "dd413014b8aea43b1387efa82174f5a6ac4846ff58ef9c5ae4b163ed7a3ae2bb"
+    sha256 arm64_ventura:  "5a4f03d4fc783d1fc6d3ab80075b677c72fb9b3b6edaf643db4dab9d090e7017"
+    sha256 arm64_monterey: "61559972856452f9adcc53120038da536f4d55da7a6c358a49f55fd040b2036a"
+    sha256 sonoma:         "9421ae4f3c55a7730209cf4a2a5acd5328c83fe72e976cbcd0443457c9f45802"
+    sha256 ventura:        "2fec9a5c15081fcee7d858f882d1b73fd5701472435f21e495c6a1a9d1ca6c7f"
+    sha256 monterey:       "0a0e96c862211e5617b1e4a2abd2174283595da324ab5833d4586b025a600d1f"
+    sha256 x86_64_linux:   "732574f9e961218dfb0d6d0e239891b7c23940510a1332c336068c8065be4cb0"
   end
 
   depends_on "pkg-config" => :build
@@ -48,6 +32,7 @@ class Ffmpeg < Formula
   depends_on "freetype"
   depends_on "frei0r"
   depends_on "gnutls"
+  depends_on "harfbuzz"
   depends_on "jpeg-xl"
   depends_on "lame"
   depends_on "libass"
@@ -100,6 +85,12 @@ class Ffmpeg < Formula
     sha256 "57e26caced5a1382cb639235f9555fc50e45e7bf8333f7c9ae3d49b3241d3f77"
   end
 
+  # widely used flv hevc solutions in China
+  patch do
+    url "https://raw.githubusercontent.com/wasphin/homebrew-formula/main/ffmpeg-lavf-flv-hevc-support.patch"
+    sha256 "1f43d56af07e5d260606f28369de1fb17efb86848639b12e533d26e9b8a5e5a5"
+  end
+
   def install
     # The new linker leads to duplicate symbol issue https://github.com/homebrew-ffmpeg/homebrew-ffmpeg/issues/140
     ENV.append "LDFLAGS", "-Wl,-ld_classic" if DevelopmentTools.clang_build_version >= 1500
@@ -119,6 +110,7 @@ class Ffmpeg < Formula
       --enable-libaribb24
       --enable-libbluray
       --enable-libdav1d
+      --enable-libharfbuzz
       --enable-libjxl
       --enable-libmp3lame
       --enable-libopus
